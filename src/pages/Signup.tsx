@@ -10,14 +10,35 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/stores/auth";
+import { toast } from "sonner";
 import logo from "@/assets/logo.svg";
 
 export function Signup() {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [loading, setLoading] = useState(false)
 
-    const handleSubmit = async (e: React.FormEvent) => { }
+    const signup = useAuthStore((state) => state.signup)
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const signupMutate = await signup({ name, email, password });
+
+            if (signupMutate) {
+                toast.success("Cadastro realizado com sucesso!");
+            }
+        } catch (error) {
+            toast.error("Erro ao realizar o cadastro");
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     return (
         <div className="flex items-center min-h-[calc(100vh-4rem)] justify-center flex-col gap-6">
@@ -63,7 +84,7 @@ export function Signup() {
                                 required
                             />
                         </div>
-                        <Button type="submit" className="w-full">
+                        <Button type="submit" className="w-full" disabled={loading}>
                             Cadastrar
                         </Button>
                     </form>
